@@ -1,0 +1,25 @@
+[package]
+name = "secure-web-extract"
+description = "security_text and display extraction for Secure Web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+htmlize.workspace = true
+pulldown-cmark.workspace = true
+secure-web-core.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+unicode-normalization.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true

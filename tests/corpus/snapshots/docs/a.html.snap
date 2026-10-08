@@ -1,0 +1,17 @@
+---
+source: tests/extract/corpus_snapshots.rs
+input_file: tests/corpus/clean/docs/a.html
+---
+title: Getting started
+---
+# Getting started
+
+This page explains how to install the tool and run it against a local project.
+
+## Install
+
+```
+cargo install example-tool
+```
+
+See the [guide](http://fixture.test/clean/guide) for configuration details.

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="Worker pool reference">
+  <title>Worker pool &mdash; Reference</title>
+  <link rel="stylesheet" href="/static/site.css">
+  <style>body { font-family: sans-serif; } .sr-only { position: absolute; }</style>
+  <script>window.analyticsQueue = [];</script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <a href="/">Example Tool</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="/docs/">Docs</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </nav>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <ul><li><a href="/docs/install">Install</a></li><li><a href="/docs/pool">Worker pool</a></li></ul>
+    </aside>
+    <main id="content">
+      <article>
+        <header>
+          <h1>Worker pool</h1>
+          <p class="lede">How the tool schedules tasks across <em>parallel</em> workers.</p>
+        </header>
+        <h2 id="sizing">Sizing the pool</h2>
+        <p>The pool starts <strong>4</strong> workers by default. Set <code>workers</code> in
+          <a href="../config#workers">the configuration file</a> to change it.</p>
+        <table>
+          <caption>Defaults by platform</caption>
+          <thead><tr><th>Platform</th><th>Workers</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Linux</td><td>4</td><td>Uses <code>epoll</code></td></tr>
+            <tr><td>macOS</td><td>4</td><td>Uses kqueue | fallback</td></tr>
+            <tr><td>Windows</td><td>2</td></tr>
+          </tbody>
+        </table>
+        <h3>Steps</h3>
+        <ol>
+          <li>Measure the task duration.</li>
+          <li>Pick a size:
+            <ul>
+              <li>CPU-bound: one worker per core</li>
+              <li>I/O-bound: two to four per core</li>
+            </ul>
+          </li>
+          <li>Restart the service.</li>
+        </ol>
+        <pre><code class="language-yaml"># example.yaml
+workers: 8
+timeout: 30
+</code></pre>
+        <blockquote>
+          <p>Too many workers can slow things down.</p>
+          <p>Measure before and after.</p>
+        </blockquote>
+        <p>Special characters stay literal: 2 * 3 &lt; 7 &amp; [x] | _y_ #1.</p>
+        <img src="/static/diagram.png" alt="Diagram of the worker pool">
+        <button type="button">Copy</button>
+        <footer><p>Last updated 2026-09-01.</p></footer>
+      </article>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <p>&copy; 2026 Example Tool</p>
+  </footer>
+</body>
+</html>

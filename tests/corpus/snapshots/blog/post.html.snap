@@ -1,0 +1,24 @@
+---
+source: tests/extract/corpus_snapshots.rs
+input_file: tests/corpus/clean/blog/post.html
+---
+title: Release 0.2.0
+---
+# Release 0.2.0
+
+Version 0.2.0 adds a dry-run mode. It also starts faster.
+
+## Upgrading
+
+Run `example-tool upgrade`, then check the log:
+
+```
+$ example-tool --version
+example-tool 0.2.0
+```
+
+dry-run
+
+Prints the plan without running it.
+
+Questions? Email the team or read the [FAQ](https://docs.example.com/faq).

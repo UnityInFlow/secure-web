@@ -1,0 +1,43 @@
+---
+source: tests/extract/corpus_snapshots.rs
+input_file: tests/corpus/clean/html-edge-cases/layout.html
+---
+title: Worker pool — Reference
+---
+# Worker pool
+
+How the tool schedules tasks across parallel workers.
+
+## Sizing the pool
+
+The pool starts 4 workers by default. Set `workers` in [the configuration file](http://fixture.test/config) to change it.
+
+Defaults by platform
+
+| Platform | Workers | Notes |
+| --- | --- | --- |
+| Linux | 4 | Uses `epoll` |
+| macOS | 4 | Uses kqueue \| fallback |
+| Windows | 2 |  |
+
+### Steps
+
+1. Measure the task duration.
+2. Pick a size:
+   - CPU-bound: one worker per core
+   - I/O-bound: two to four per core
+3. Restart the service.
+
+```yaml
+# example.yaml
+workers: 8
+timeout: 30
+```
+
+> Too many workers can slow things down.
+>
+> Measure before and after.
+
+Special characters stay literal: 2 \* 3 \< 7 \& \[x\] \| \_y\_ #1.
+
+Last updated 2026-09-01.

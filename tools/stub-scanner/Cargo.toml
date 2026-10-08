@@ -1,0 +1,18 @@
+[package]
+name = "stub-scanner"
+description = "Test-only stand-in for injection-scanner (never shipped)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "stub-injection-scanner"
+path = "src/main.rs"
+
+[dependencies]

@@ -1,0 +1,3 @@
+# unwrap/expect are denied workspace-wide (CLAUDE.md) but allowed inside tests.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

@@ -1,0 +1,24 @@
+---
+source: tests/integration/web_open.rs
+expression: "serde_json::to_string_pretty(&redact(&result, &harness)).unwrap()"
+---
+{
+  "content": "# Getting started\n\nThis page explains how to install the tool and run it against a local project.\n\n## Install\n\n```\ncargo install example-tool\n```\n\nSee the [guide](http://fixture.test:<port>/clean/guide) for configuration details.\n",
+  "contentBytes": 248,
+  "contentPath": "<workspace>/runs/open_<id>/pages/000001-getting-started.md",
+  "documentId": "doc_000001",
+  "finalUrl": "http://fixture.test:<port>/clean/a",
+  "manifestPath": "<workspace>/runs/open_<id>/manifest.json",
+  "runId": "open_<id>",
+  "security": {
+    "decision": "SAFE",
+    "findingIds": [],
+    "maxSeverity": null,
+    "policyVersion": "<policyVersion>",
+    "scannerVersion": "injection-scanner 0.1.0-stub"
+  },
+  "status": "SAFE",
+  "title": "Getting started",
+  "truncated": false,
+  "url": "http://fixture.test:<port>/clean/a"
+}

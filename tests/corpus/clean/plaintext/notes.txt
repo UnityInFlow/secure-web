@@ -1,0 +1,4 @@
+Release notes
+
+0.2.0 adds a dry-run mode and faster startup.
+0.1.0 is the first public release.

@@ -1,0 +1,9 @@
+---
+source: tests/extract/corpus_snapshots.rs
+input_file: tests/corpus/clean/plaintext/notes.txt
+---
+title: (none)
+---
+Release notes
+
+0.2.0 adds a dry-run mode and faster startup. 0.1.0 is the first public release.

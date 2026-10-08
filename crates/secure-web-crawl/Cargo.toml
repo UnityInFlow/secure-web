@@ -1,0 +1,28 @@
+[package]
+name = "secure-web-crawl"
+description = "PageProcessor and bounded crawler for Secure Web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono.workspace = true
+secure-web-core.workspace = true
+secure-web-fetch.workspace = true
+secure-web-security.workspace = true
+secure-web-extract.workspace = true
+secure-web-store.workspace = true
+regex.workspace = true
+thiserror.workspace = true
+# `rt` for `spawn_blocking` (extraction is CPU-bound and runs off the reactor) and the crawl's
+# `JoinSet`; `time` for `maxDuration`; `macros` for `select!`.
+tokio = { workspace = true, features = ["rt", "time", "macros"] }
+tokio-util.workspace = true
+tracing.workspace = true
+url.workspace = true

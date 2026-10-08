@@ -1,0 +1,27 @@
+[package]
+name = "secure-web-fetch"
+description = "Bounded HTTP fetcher for Secure Web (fetches only SSRF-validated targets)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono.workspace = true
+flate2.workspace = true
+reqwest.workspace = true
+secure-web-core.workspace = true
+secure-web-security.workspace = true
+thiserror.workspace = true
+# `time` for the whole-fetch deadline and per-host delay; `sync` for the per-host semaphore.
+tokio = { workspace = true, features = ["time", "sync"] }
+tracing.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt"] }

@@ -1,0 +1,16 @@
+---
+source: tests/extract/corpus_snapshots.rs
+input_file: tests/corpus/clean/json/data.json
+---
+title: (none)
+---
+```json
+{
+  "features": [
+    "dry-run",
+    "parallel workers"
+  ],
+  "name": "example-tool",
+  "version": "0.2.0"
+}
+```

@@ -1,0 +1,38 @@
+[package]
+name = "secure-web-store"
+description = "Corpus store, manifest and lexical find for Secure Web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono.workspace = true
+hex.workspace = true
+secure-web-core.workspace = true
+# `title::{normalize_title, slug}` for page file names and `markdown::render` for the title
+# heading, so the corpus uses the extractor's one normalization and escaping (ADR-015).
+secure-web-extract.workspace = true
+# The sealed trust-state types (`AcceptedDocument`, `RawContent`) live in
+# `secure_web_security::decision`, the only code that can construct them (ADR-016).
+secure-web-security.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+# `rt` for `spawn_blocking`: file writes and fsync stay off the async reactor.
+tokio = { workspace = true, features = ["rt"] }
+tracing.workspace = true
+url.workspace = true
+
+[target.'cfg(unix)'.dependencies]
+rustix.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt"] }

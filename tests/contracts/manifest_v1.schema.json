@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/UnityInFlow/secure-web/tests/contracts/manifest_v1.schema.json",
+  "title": "Secure Web manifest v1",
+  "description": "Pinned by tests/contracts/manifest_v1.rs; the prose contract is docs/contracts/manifest-schema.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version", "runId", "kind", "rootUrl", "status", "startedAt", "finishedAt", "versions",
+    "policy", "stats", "documents", "blocked", "failed"
+  ],
+  "if": { "properties": { "status": { "const": "RUNNING" } } },
+  "then": { "properties": { "finishedAt": { "type": "null" } } },
+  "else": { "properties": { "finishedAt": { "$ref": "#/$defs/timestamp" } } },
+  "properties": {
+    "version": { "const": 1 },
+    "runId": { "type": "string", "pattern": "^(crawl|open)_[0-9a-f]{12}$" },
+    "kind": { "enum": ["CRAWL", "OPEN"] },
+    "rootUrl": { "$ref": "#/$defs/url" },
+    "status": { "enum": ["RUNNING", "COMPLETE", "LIMIT_REACHED", "CANCELLED", "FAILED"] },
+    "startedAt": { "$ref": "#/$defs/timestamp" },
+    "finishedAt": { "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }] },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["secureWeb", "scanner", "policy"],
+      "properties": {
+        "secureWeb": { "type": "string", "minLength": 1 },
+        "scanner": { "type": "string", "minLength": 1 },
+        "policy": { "type": "string", "pattern": "^[0-9a-f]{1,64}$" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxDepth", "maxPages", "maxTotalBytes", "maxPageBytes", "maxDurationMs", "scope",
+        "allowedHosts"
+      ],
+      "properties": {
+        "maxDepth": { "$ref": "#/$defs/count" },
+        "maxPages": { "$ref": "#/$defs/count" },
+        "maxTotalBytes": { "$ref": "#/$defs/count" },
+        "maxPageBytes": { "$ref": "#/$defs/count" },
+        "maxDurationMs": { "$ref": "#/$defs/count" },
+        "scope": { "enum": ["SAME_ORIGIN", "ALLOWLIST"] },
+        "allowedHosts": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovered", "fetched", "safe", "warned", "blocked", "failed", "totalBytes"],
+      "properties": {
+        "discovered": { "$ref": "#/$defs/count" },
+        "fetched": { "$ref": "#/$defs/count" },
+        "safe": { "$ref": "#/$defs/count" },
+        "warned": { "$ref": "#/$defs/count" },
+        "blocked": { "$ref": "#/$defs/count" },
+        "failed": { "$ref": "#/$defs/count" },
+        "totalBytes": { "$ref": "#/$defs/count" }
+      }
+    },
+    "documents": { "type": "array", "items": { "$ref": "#/$defs/document" } },
+    "blocked": { "type": "array", "items": { "$ref": "#/$defs/blocked" } },
+    "failed": { "type": "array", "items": { "$ref": "#/$defs/failed" } }
+  },
+  "$defs": {
+    "count": { "type": "integer", "minimum": 0 },
+    "url": { "type": "string", "pattern": "^https?://[^\\s]+$" },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "documentId": { "type": "string", "pattern": "^doc_[0-9]{6}$" },
+    "severity": { "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL", null] },
+    "findingIds": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[A-Z]{1,8}[0-9]{1,6}$" }
+    },
+    "contentType": { "type": "string", "pattern": "^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$" },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "seq", "url", "finalUrl", "path", "title", "depth", "decision", "maxSeverity",
+        "findingIds", "contentHash", "contentBytes", "httpStatus", "contentType", "retrievedAt",
+        "duplicateOf"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/documentId" },
+        "seq": { "type": "integer", "minimum": 1, "maximum": 999999 },
+        "url": { "$ref": "#/$defs/url" },
+        "finalUrl": { "$ref": "#/$defs/url" },
+        "path": {
+          "type": "string",
+          "pattern": "^(pages|quarantine)/[0-9]{6}(-[a-z0-9]+(-[a-z0-9]+)*)?\\.md$"
+        },
+        "title": { "type": ["string", "null"], "maxLength": 200 },
+        "depth": { "$ref": "#/$defs/count" },
+        "decision": { "enum": ["SAFE", "WARN"] },
+        "maxSeverity": { "$ref": "#/$defs/severity" },
+        "findingIds": { "$ref": "#/$defs/findingIds" },
+        "contentHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "contentBytes": { "$ref": "#/$defs/count" },
+        "httpStatus": { "type": "integer", "minimum": 100, "maximum": 999 },
+        "contentType": { "$ref": "#/$defs/contentType" },
+        "retrievedAt": { "$ref": "#/$defs/timestamp" },
+        "duplicateOf": { "oneOf": [{ "$ref": "#/$defs/documentId" }, { "type": "null" }] }
+      },
+      "if": { "properties": { "path": { "pattern": "^quarantine/" } } },
+      "then": { "properties": { "decision": { "const": "WARN" } } }
+    },
+    "blocked": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "url", "finalUrl", "depth", "reason", "maxSeverity", "findingIds", "httpStatus",
+        "contentType", "retrievedAt"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/documentId" },
+        "url": { "$ref": "#/$defs/url" },
+        "finalUrl": { "oneOf": [{ "$ref": "#/$defs/url" }, { "type": "null" }] },
+        "depth": { "$ref": "#/$defs/count" },
+        "reason": {
+          "enum": [
+            "PROMPT_INJECTION", "SSRF", "UNSUPPORTED_SCHEME", "UNSUPPORTED_CONTENT_TYPE",
+            "CONTENT_TOO_LARGE", "SCANNER_FAILURE", "REDIRECT_VIOLATION", "POLICY_VIOLATION"
+          ]
+        },
+        "maxSeverity": { "$ref": "#/$defs/severity" },
+        "findingIds": { "$ref": "#/$defs/findingIds" },
+        "httpStatus": { "type": ["integer", "null"], "minimum": 100, "maximum": 999 },
+        "contentType": { "oneOf": [{ "$ref": "#/$defs/contentType" }, { "type": "null" }] },
+        "retrievedAt": { "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }] }
+      }
+    },
+    "failed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "depth", "code", "retryable"],
+      "properties": {
+        "url": { "$ref": "#/$defs/url" },
+        "depth": { "$ref": "#/$defs/count" },
+        "code": {
+          "enum": [
+            "INVALID_URL", "UNSUPPORTED_SCHEME", "DNS_FAILED", "SSRF_BLOCKED", "REDIRECT_BLOCKED",
+            "FETCH_TIMEOUT", "FETCH_FAILED", "CONTENT_TOO_LARGE", "UNSUPPORTED_CONTENT_TYPE",
+            "EXTRACTION_FAILED", "SCANNER_FAILED", "PROMPT_INJECTION_BLOCKED",
+            "CRAWL_LIMIT_REACHED", "CRAWL_CANCELLED", "NOT_FOUND", "INVALID_ARGUMENT", "INTERNAL"
+          ]
+        },
+        "retryable": { "type": "boolean" }
+      }
+    }
+  }
+}

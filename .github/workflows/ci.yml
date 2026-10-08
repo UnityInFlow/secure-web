@@ -1,0 +1,171 @@
+# CI gates for secure-web. Job names are stable: required status checks refer to them by name.
+#
+# Runner: the `CI_RUNNER` repository variable, defaulting to GitHub-hosted `ubuntu-latest`. Every job
+# is secretless with `contents: read`, so it is safe for fork pull requests. A repository may set
+# `CI_RUNNER` to a runner label of its own (for example a self-hosted pool) without editing this file.
+# Actions are pinned to full commit SHAs (tag in the trailing comment).
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  fmt:
+    name: fmt
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    name: clippy
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - run: cargo clippy --locked --all-targets --all-features -- -D warnings
+
+  test:
+    name: test
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - run: cargo test --locked --workspace
+      - name: binary smoke
+        run: |
+          cargo run --locked -- --help
+          cargo run --locked -- config --effective
+
+  # Coverage gate (docs/testing.md): >= 85 % line coverage from PR-05 onward. The test-only stub
+  # scanner (tools/) is excluded; tests build it into target/stub-scanner themselves.
+  coverage:
+    name: coverage
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2.87.20
+        with:
+          tool: cargo-llvm-cov@0.8.7
+      - run: >-
+          cargo llvm-cov --locked --workspace
+          --ignore-filename-regex '(^|/)tools/'
+          --fail-under-lines 85
+
+  audit:
+    name: audit
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2.87.20
+        with:
+          tool: cargo-audit@0.22.2
+      - run: cargo audit --deny warnings
+
+  deny:
+    name: deny
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2.87.20
+        with:
+          tool: cargo-deny@0.20.2
+      - run: cargo deny --locked check
+
+  release-build:
+    name: release-build (${{ matrix.target }})
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            experimental: false
+          # Cross-linking aarch64 needs a toolchain the runner does not have yet; allowed to fail
+          # until the release pipeline lands in PR-10.
+          - target: aarch64-unknown-linux-gnu
+            experimental: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: ${{ matrix.target }}
+      # ADR-011: the guard's `test-support` feature (fixture-server allowance) must never reach
+      # the shipped binary. Dev-dependency edges are excluded here on purpose. Fails closed: a
+      # `cargo tree` error or a graph without the guard crate is a failure, not a pass.
+      - name: release graph excludes test-support
+        run: |
+          if ! tree=$(cargo tree --locked -p secure-web --target ${{ matrix.target }} \
+              -e normal,build,features -i secure-web-security); then
+            echo "cargo tree failed; cannot prove test-support is absent" >&2
+            exit 1
+          fi
+          if ! grep -q '^secure-web-security v' <<<"$tree"; then
+            echo "secure-web-security not found in the release graph; check is vacuous" >&2
+            exit 1
+          fi
+          if grep -q 'test-support' <<<"$tree"; then
+            echo "secure-web-security/test-support is enabled in the release dependency graph" >&2
+            exit 1
+          fi
+      # ADR-011: compiler flags (RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS, CARGO_TARGET_*_RUSTFLAGS,
+      # .cargo/config rustflags) or a replacement rustc/wrapper could set
+      # cfg(feature = "test-support") without touching the dependency graph. build.rs refuses
+      # the flag channels; this step refuses all of them before building.
+      - name: refuse compiler-flag overrides
+        run: tools/ci/test-support-guard.sh flags
+      - name: build
+        continue-on-error: ${{ matrix.experimental }}
+        run: cargo build --locked --release --target ${{ matrix.target }} --bin secure-web
+      # ADR-011: the built artifacts must not contain the test-support marker; a positive control
+      # build proves the scan would see it.
+      - name: release artifacts exclude test-support
+        continue-on-error: ${{ matrix.experimental }}
+        run: tools/ci/test-support-guard.sh artifacts ${{ matrix.target }}

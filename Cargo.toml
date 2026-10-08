@@ -1,0 +1,297 @@
+[package]
+name = "secure-web"
+description = "Security gateway for agentic Internet access, exposed over MCP"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/secure-web-core",
+    "crates/secure-web-fetch",
+    "crates/secure-web-security",
+    "crates/secure-web-extract",
+    "crates/secure-web-crawl",
+    "crates/secure-web-store",
+    "crates/secure-web-search",
+    "crates/secure-web-mcp",
+    "tools/stub-scanner",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+repository = "https://github.com/UnityInFlow/secure-web"
+
+# Every external dependency is pinned to an exact version (`=x.y.z`).
+[workspace.dependencies]
+anyhow = "=1.0.104"
+# JSON Schema (draft 2020-12) validation of the manifest contract, tests only. Not `jsonschema`:
+# it force-enables serde_json `float_roundtrip`, which feature-unifies into the scanner parser under
+# `cargo test --workspace` and makes tests exercise different float parsing than the release build.
+boon = "=0.6.1"
+bytesize = "=2.7.0"
+chrono = { version = "=0.4.45", default-features = false, features = ["std", "clock", "serde"] }
+clap = { version = "=4.6.7", features = ["derive"] }
+# Pure-Rust (miniz_oxide) gzip/zlib; the fetcher decompresses itself so the byte cap is exact.
+flate2 = { version = "=1.1.10", default-features = false, features = ["rust_backend"] }
+getrandom = "=0.4.3"
+hex = "=0.4.3"
+# WHATWG character-reference decoding (full named table) for the in-crate HTML tokenizer (ADR-013).
+htmlize = { version = "=1.1.0", features = ["unescape"] }
+humantime = "=2.4.0"
+# Empty bodies for the MCP HTTP server's own 404/405 answers; already in the tree via hyper.
+http-body-util = "=0.1.5"
+# HTTP/1.1 server for the MCP streamable-HTTP endpoint (`/mcp`, loopback by default). Already in
+# the tree via reqwest; server features only.
+hyper = { version = "=1.11.1", default-features = false, features = ["server", "http1"] }
+hyper-util = { version = "=0.1.21", default-features = false, features = ["tokio", "server", "server-graceful", "service", "http1"] }
+insta = "=1.48.0"
+ipnet = "=2.12.2"
+proptest = { version = "=1.11.0", default-features = false, features = ["std"] }
+# CommonMark -> HTML for `text/markdown` display extraction (no CLI, no getopts).
+# Crawl include/exclude path patterns (`web_crawl`), compiled once with a size limit. Already in
+# the tree (via tracing-subscriber's env-filter).
+regex = "=1.13.1"
+pulldown-cmark = { version = "=0.13.4", default-features = false, features = ["html"] }
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+serde_yaml = "=0.9.34"
+# No default features: no system proxy, no automatic decompression, no HTTP/2, no cookies.
+# `rustls-tls` = rustls + ring + bundled webpki roots (no OpenSSL, no platform verifier).
+reqwest = { version = "=0.12.28", default-features = false, features = ["rustls-tls"] }
+# Official MCP Rust SDK. No default features (no macros, no client): the server, the stdio
+# transport and the streamable-HTTP server transport (`docs/contracts/mcp-contract.md`, ADR-016).
+rmcp = { version = "=3.4.1", default-features = false, features = ["server", "transport-io", "transport-streamable-http-server"] }
+# Safe `openat`/`mkdirat`/`renameat`/`unlinkat`/`fsync` on directory fds for the corpus store
+# (ADR-015: writes relative to held directory descriptors, never re-resolved pathnames). Already
+# in the tree via tempfile; `fs` only.
+rustix = { version = "=1.1.5", default-features = false, features = ["std", "fs"] }
+sha2 = "=0.11.0"
+tempfile = "=3.27.0"
+tokio = { version = "=1.53.1", default-features = false }
+thiserror = "=2.0.21"
+# `CancellationToken` for crawl / `web_open` cancellation; the same version rmcp's request
+# context uses, so an MCP request's token is passed straight through. Already in the tree.
+tokio-util = { version = "=0.7.19", default-features = false }
+tracing = "=0.1.44"
+tracing-subscriber = { version = "=0.3.23", default-features = false, features = ["fmt", "env-filter", "std", "ansi"] }
+unicode-normalization = "=0.1.25"
+url = { version = "=2.5.8", features = ["serde"] }
+
+secure-web-core = { path = "crates/secure-web-core" }
+secure-web-fetch = { path = "crates/secure-web-fetch" }
+secure-web-security = { path = "crates/secure-web-security" }
+secure-web-extract = { path = "crates/secure-web-extract" }
+secure-web-crawl = { path = "crates/secure-web-crawl" }
+secure-web-store = { path = "crates/secure-web-store" }
+secure-web-search = { path = "crates/secure-web-search" }
+secure-web-mcp = { path = "crates/secure-web-mcp" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+secure-web-core.workspace = true
+secure-web-crawl.workspace = true
+secure-web-mcp.workspace = true
+secure-web-store.workspace = true
+serde_json.workspace = true
+# The CLI runs `open`/`serve` on a multi-threaded runtime (`enable_all` needs `net` + `time`).
+tokio = { workspace = true, features = ["rt-multi-thread", "net", "time"] }
+
+[dev-dependencies]
+boon.workspace = true
+chrono.workspace = true
+flate2.workspace = true
+insta.workspace = true
+proptest.workspace = true
+pulldown-cmark.workspace = true
+# Raw JSON-RPC client for the MCP streamable-HTTP tests (loopback only).
+reqwest.workspace = true
+secure-web-extract.workspace = true
+secure-web-fetch.workspace = true
+# `test-support` lets the fixture server's `fixture.test` name through the guard (ADR-011).
+# Dev-dependency features are not unified into `cargo build --bin secure-web` (resolver 2);
+# CI checks the release graph.
+secure-web-security = { workspace = true, features = ["test-support"] }
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt", "net", "io-util", "time"] }
+url.workspace = true
+
+# Integration tests live in grouped directories (docs/architecture.md, docs/testing.md).
+[[test]]
+name = "config_validation"
+path = "tests/core/config_validation.rs"
+
+[[test]]
+name = "ids"
+path = "tests/core/ids.rs"
+
+[[test]]
+name = "model"
+path = "tests/core/model.rs"
+
+[[test]]
+name = "ssrf_ranges"
+path = "tests/security/ssrf_ranges.rs"
+
+[[test]]
+name = "ssrf_hosts"
+path = "tests/security/ssrf_hosts.rs"
+
+[[test]]
+name = "ssrf_literals"
+path = "tests/security/ssrf_literals.rs"
+
+[[test]]
+name = "cli_smoke"
+path = "tests/cli/smoke.rs"
+
+[[test]]
+name = "guard_test_support"
+path = "tests/security/guard_test_support.rs"
+
+[[test]]
+name = "redirect_private"
+path = "tests/security/redirect_private.rs"
+
+[[test]]
+name = "size_bomb"
+path = "tests/security/size_bomb.rs"
+
+[[test]]
+name = "raw_tcp_abuse"
+path = "tests/security/raw_tcp_abuse.rs"
+
+[[test]]
+name = "fetcher"
+path = "tests/fetch/fetcher.rs"
+
+[[test]]
+name = "fixture_routes"
+path = "tests/fetch/fixture_routes.rs"
+
+[[test]]
+name = "injection_hidden"
+path = "tests/security/injection_hidden.rs"
+
+[[test]]
+name = "metadata_title"
+path = "tests/security/metadata_title.rs"
+
+[[test]]
+name = "extract_bounds"
+path = "tests/security/extract_bounds.rs"
+
+[[test]]
+name = "scanner_output_contract"
+path = "tests/contracts/scanner_output_contract.rs"
+
+[[test]]
+name = "scanner_fail_closed"
+path = "tests/security/scanner_fail_closed.rs"
+
+[[test]]
+name = "injection_direct"
+path = "tests/security/injection_direct.rs"
+
+[[test]]
+name = "injection_encoded"
+path = "tests/security/injection_encoded.rs"
+
+[[test]]
+name = "no_leak_canary"
+path = "tests/security/no_leak_canary.rs"
+
+[[test]]
+name = "scanner_real"
+path = "tests/security/scanner_real.rs"
+
+[[test]]
+name = "manifest_v1"
+path = "tests/contracts/manifest_v1.rs"
+
+[[test]]
+name = "sanitized_paths"
+path = "tests/security/sanitized_paths.rs"
+
+[[test]]
+name = "store_atomic"
+path = "tests/store/atomic.rs"
+
+[[test]]
+name = "store_dedupe"
+path = "tests/store/dedupe.rs"
+
+[[test]]
+name = "web_open"
+path = "tests/integration/web_open.rs"
+
+[[test]]
+name = "web_crawl"
+path = "tests/integration/web_crawl.rs"
+
+[[test]]
+name = "mcp_tools_list"
+path = "tests/contracts/mcp_tools_list.rs"
+
+[[test]]
+name = "links"
+path = "tests/extract/links.rs"
+
+[[test]]
+name = "display"
+path = "tests/extract/display.rs"
+
+[[test]]
+name = "corpus_snapshots"
+path = "tests/extract/corpus_snapshots.rs"
+
+[[test]]
+name = "crawler_budgets"
+path = "tests/crawler/budgets.rs"
+
+[[test]]
+name = "crawler_link_explosion"
+path = "tests/crawler/link_explosion.rs"
+
+[[test]]
+name = "crawler_blocked_no_links"
+path = "tests/crawler/blocked_no_links.rs"
+
+[[test]]
+name = "crawler_scope"
+path = "tests/crawler/scope.rs"
+
+[[test]]
+name = "crawler_cancel"
+path = "tests/crawler/cancel.rs"
+
+# The fixture server compresses a 16 MiB gzip bomb; unoptimized miniz_oxide makes that slow.
+[profile.dev.package.miniz_oxide]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

@@ -1,0 +1,34 @@
+---
+source: tests/integration/web_crawl.rs
+expression: "serde_json::to_string_pretty(&body).unwrap()"
+---
+{
+  "blocked": [
+    {
+      "documentId": "<documentId>",
+      "finalUrl": "http://fixture.test:<port>/injection/hidden-css",
+      "findingIds": [
+        "PI001"
+      ],
+      "maxSeverity": "CRITICAL",
+      "reason": "PROMPT_INJECTION",
+      "url": "http://fixture.test:<port>/injection/hidden-css"
+    }
+  ],
+  "corpusPath": "<workspace>/runs/crawl_<id>",
+  "crawlId": "crawl_<id>",
+  "manifestPath": "<workspace>/runs/crawl_<id>/manifest.json",
+  "rootUrl": "http://fixture.test:<port>/clean/docs/index",
+  "stats": {
+    "blocked": 1,
+    "discovered": 5,
+    "durationMs": "<durationMs>",
+    "failed": 0,
+    "fetched": 5,
+    "safe": 4,
+    "totalBytes": "<totalBytes>",
+    "warned": 0
+  },
+  "status": "COMPLETE",
+  "summary": "Secure Web crawled 5 pages; 1 blocked (prompt injection). Blocked content was not exposed."
+}

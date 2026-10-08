@@ -1,0 +1,68 @@
+# Secure Web configuration — every key with its default (docs/contracts/config.md).
+#
+# Copy to ./secure-web.yaml or ~/.secure-web/config.yaml, or pass --config <path>.
+# Unknown keys are a hard error. Any key can be overridden from the environment:
+#   SECURE_WEB__<SECTION>__<KEY>=value   e.g. SECURE_WEB__FETCH__MAX_PAGE_BYTES=2MB
+# Durations: 5s, 250ms, 2m, 1h.  Sizes: plain bytes, 5MB / 512KB (decimal), 1MiB (binary).
+
+server:
+  listen: 127.0.0.1:8787          # MCP streamable HTTP endpoint at /mcp
+  allowRemote: false              # a non-loopback listen address is rejected unless true
+  workspace: ~/.secure-web        # runs/ and private-audit/ live here
+
+fetch:
+  userAgent: "SecureWeb/0.1 (+https://github.com/UnityInFlow/secure-web)"
+  connectTimeout: 5s
+  requestTimeout: 20s
+  maxRedirects: 5
+  allowRedirectDowngrade: false
+  maxPageBytes: 5MB               # decompressed
+  maxJsonBytes: 1MB
+  perHostConcurrency: 4
+  minDelayPerHost: 0ms
+  respectRetryAfter: true
+
+extract:
+  maxSecurityTextBytes: 2MB
+  maxLinksPerPage: 2000
+  maxDisplayBytes: 1MB
+
+crawl:
+  maxDepth: 2                     # hard max 5
+  maxPages: 100                   # hard max 1000
+  maxTotalBytes: 100MB
+  maxDuration: 120s
+  concurrency: 8
+  maxFrontier: 10000
+  scope: SAME_ORIGIN              # SAME_ORIGIN | ALLOWLIST
+  allowedHosts: []
+  stripQueryParams: [utm_source, utm_medium, utm_campaign, utm_term, utm_content, fbclid, gclid]
+  robots:                         # v0.2
+    enabled: true
+    cacheTtl: 1h
+
+security:
+  scanner:
+    executable: injection-scanner # resolved on PATH, or an absolute path
+    timeout: 2s
+    failurePolicy: block          # only accepted value
+  injection:
+    critical: block               # must be block
+    high: block                   # must be block
+    medium: warn                  # block | warn | allow
+    low: allow                    # block | warn | allow
+  warnHandling: store             # store | quarantine
+  network:
+    blockPrivateAddresses: true   # cannot be set to false in v0.1
+    blockLinkLocal: true          # cannot be set to false in v0.1
+    validateRedirects: true       # cannot be set to false in v0.1
+    extraBlockedCidrs: []
+    extraBlockedHosts: []
+
+search:                           # v0.2
+  provider: none                  # none | brave | searxng
+  maxResults: 10
+
+debug:
+  retainRaw: false
+  logLevel: info                  # trace | debug | info | warn | error

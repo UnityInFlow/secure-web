@@ -1,0 +1,155 @@
+---
+source: tests/contracts/manifest_v1.rs
+---
+{
+  "blocked": [
+    {
+      "contentType": "text/html",
+      "depth": 1,
+      "finalUrl": "http://fixture.test/evil",
+      "findingIds": [
+        "PI001"
+      ],
+      "httpStatus": 200,
+      "id": "doc_000005",
+      "maxSeverity": "CRITICAL",
+      "reason": "PROMPT_INJECTION",
+      "retrievedAt": "2026-09-24T18:00:01Z",
+      "url": "http://fixture.test/evil"
+    }
+  ],
+  "documents": [
+    {
+      "contentBytes": 77,
+      "contentHash": "sha256:2c3f568c0fbc352b4a59d456ce9a0f33df5a237adec4f5bac267550bf9f353fd",
+      "contentType": "text/html",
+      "decision": "SAFE",
+      "depth": 0,
+      "duplicateOf": null,
+      "finalUrl": "http://fixture.test/",
+      "findingIds": [],
+      "httpStatus": 200,
+      "id": "doc_000001",
+      "maxSeverity": null,
+      "path": "pages/000001-alpha-guide.md",
+      "retrievedAt": "2026-09-24T18:00:01Z",
+      "seq": 1,
+      "title": "Alpha guide",
+      "url": "http://fixture.test/"
+    },
+    {
+      "contentBytes": 43,
+      "contentHash": "sha256:02867e96dfb7926f67d99864c62f5ffa04c2a3899f210d38d9dc4cc8b45e9204",
+      "contentType": "text/html",
+      "decision": "SAFE",
+      "depth": 1,
+      "duplicateOf": null,
+      "finalUrl": "http://fixture.test/b",
+      "findingIds": [
+        "PI900"
+      ],
+      "httpStatus": 200,
+      "id": "doc_000002",
+      "maxSeverity": "LOW",
+      "path": "pages/000002-beta.md",
+      "retrievedAt": "2026-09-24T18:00:01Z",
+      "seq": 2,
+      "title": "Beta",
+      "url": "http://fixture.test/b"
+    },
+    {
+      "contentBytes": 45,
+      "contentHash": "sha256:74141a0369424821b58f37ba9203a0fdc91fe7dd7d0321f1f9757d8d0f886b38",
+      "contentType": "text/html",
+      "decision": "SAFE",
+      "depth": 1,
+      "duplicateOf": null,
+      "finalUrl": "http://fixture.test/docs/Getting_Started",
+      "findingIds": [],
+      "httpStatus": 200,
+      "id": "doc_000003",
+      "maxSeverity": null,
+      "path": "pages/000003-docs-getting-started.md",
+      "retrievedAt": "2026-09-24T18:00:01Z",
+      "seq": 3,
+      "title": null,
+      "url": "http://fixture.test/docs/Getting_Started"
+    },
+    {
+      "contentBytes": 36,
+      "contentHash": "sha256:70ba70bc84c44277cad00337431af49933feaf6ea0160e88033ae14673259d82",
+      "contentType": "text/html",
+      "decision": "WARN",
+      "depth": 1,
+      "duplicateOf": null,
+      "finalUrl": "http://fixture.test/warn",
+      "findingIds": [
+        "PI500"
+      ],
+      "httpStatus": 200,
+      "id": "doc_000004",
+      "maxSeverity": "MEDIUM",
+      "path": "pages/000004-warned-page.md",
+      "retrievedAt": "2026-09-24T18:00:01Z",
+      "seq": 4,
+      "title": "Warned page",
+      "url": "http://fixture.test/warn"
+    },
+    {
+      "contentBytes": 77,
+      "contentHash": "sha256:2c3f568c0fbc352b4a59d456ce9a0f33df5a237adec4f5bac267550bf9f353fd",
+      "contentType": "text/html",
+      "decision": "SAFE",
+      "depth": 1,
+      "duplicateOf": "doc_000001",
+      "finalUrl": "http://fixture.test/alias",
+      "findingIds": [],
+      "httpStatus": 200,
+      "id": "doc_000006",
+      "maxSeverity": null,
+      "path": "pages/000001-alpha-guide.md",
+      "retrievedAt": "2026-09-24T18:00:01Z",
+      "seq": 6,
+      "title": "Alpha guide",
+      "url": "http://fixture.test/alias"
+    }
+  ],
+  "failed": [
+    {
+      "code": "CONTENT_TOO_LARGE",
+      "depth": 1,
+      "retryable": false,
+      "url": "http://fixture.test/big"
+    }
+  ],
+  "finishedAt": "<finishedAt>",
+  "kind": "CRAWL",
+  "policy": {
+    "allowedHosts": [],
+    "maxDepth": 2,
+    "maxDurationMs": 120000,
+    "maxPageBytes": 5000000,
+    "maxPages": 100,
+    "maxTotalBytes": 100000000,
+    "scope": "SAME_ORIGIN"
+  },
+  "rootUrl": "http://fixture.test/",
+  "runId": "crawl_0123456789ab",
+  "startedAt": "2026-09-24T18:00:00Z",
+  "stats": {
+    "blocked": 1,
+    "discovered": 9,
+    "failed": 1,
+    "fetched": 6,
+    "safe": 4,
+    "totalBytes": 557,
+    "warned": 1
+  },
+  "status": "COMPLETE",
+  "version": 1,
+  "versions": {
+    "policy": "78d4c3e02de9",
+    "scanner": "injection-scanner 0.1.0-stub",
+    "secureWeb": "<secureWeb>"
+  }
+}

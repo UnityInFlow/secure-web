@@ -1,0 +1,10 @@
+# Review request (not a merge block) on every path; explicit lines for the
+# paths where a quiet change weakens the security model.
+* @hermanngeorge15
+/.github/workflows/ @hermanngeorge15
+/crates/secure-web-security/ @hermanngeorge15
+/crates/secure-web-fetch/ @hermanngeorge15
+/docs/contracts/ @hermanngeorge15
+/docs/adr/ @hermanngeorge15
+/docs/security-policy.md @hermanngeorge15
+/.github/CODEOWNERS @hermanngeorge15

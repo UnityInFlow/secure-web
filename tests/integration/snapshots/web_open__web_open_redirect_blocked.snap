@@ -1,0 +1,18 @@
+---
+source: tests/integration/web_open.rs
+expression: "serde_json::to_string_pretty(&redact(&result, &harness)).unwrap()"
+---
+{
+  "error": {
+    "code": "REDIRECT_BLOCKED",
+    "details": {
+      "documentId": "doc_000001",
+      "manifestPath": "<workspace>/runs/open_<id>/manifest.json",
+      "reason": "REDIRECT_VIOLATION",
+      "runId": "open_<id>",
+      "url": "http://fixture.test:<port>/redirect/private"
+    },
+    "message": "A redirect was blocked",
+    "retryable": false
+  }
+}

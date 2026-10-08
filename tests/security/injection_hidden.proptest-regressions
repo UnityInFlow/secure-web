@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc fbb10db28fc57f4fb65f34564383a419729efebfbbcdaf8d66b26aa0a2ef4654 # shrinks to pieces = ["ign", "<title>", "</title>", "ign", "<div>"]
+cc 70446530051a934fc4cd591bef1f4166d4ab685441945d33738063035558711e # shrinks to pieces = ["<table>", "<caption>", "<", "<header>", "x&amp;y"]

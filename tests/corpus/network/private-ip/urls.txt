@@ -1,0 +1,34 @@
+# Private, link-local, metadata and reserved destinations written as IP literals. Every line must be
+# rejected by UrlGuard before any DNS lookup. Used by tests/security/ssrf_literals.rs.
+http://10.0.0.1/
+http://10.255.255.255/
+http://172.16.0.1/
+http://172.31.255.255/
+http://192.168.1.1/
+http://192.168.0.1:8080/router
+http://100.64.0.1/
+http://100.100.100.200/
+http://169.254.169.254/
+http://169.254.169.254/latest/meta-data/
+http://169.254.170.2/v2/credentials
+http://192.0.0.1/
+http://198.18.0.1/
+http://224.0.0.1/
+http://239.255.255.250/
+http://240.0.0.1/
+http://255.255.255.255/
+http://[fd00:ec2::254]/
+http://[fc00::1]/
+http://[fe80::1]/
+http://[ff02::1]/
+http://[::ffff:10.0.0.1]/
+http://[::ffff:169.254.169.254]/
+http://[64:ff9b::a9fe:a9fe]/
+http://[64:ff9b::192.168.1.1]/
+http://167772161/
+http://0xa9fea9fe/
+http://0251.0376.0251.0376/
+http://0xa9.0xfe.0xa9.0xfe/
+http://10.1/
+http://192.168.257/
+https://[::ffff:c0a8:101]:443/

@@ -1,0 +1,37 @@
+[package]
+name = "secure-web-security"
+description = "SSRF guard, injection-scanner adapter and policy engine for Secure Web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+ipnet.workspace = true
+secure-web-core.workspace = true
+# `markdown::render` builds `AcceptedDocument.markdown` from `display` in `accept()`.
+secure-web-extract.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+# `net` for `lookup_host`; `rt` because `lookup_host` runs getaddrinfo on the blocking pool;
+# `time` for the DNS lookup and scanner timeouts; `process` + `io-util` + `macros` for the
+# scanner subprocess (`try_join!`).
+tokio = { workspace = true, features = ["net", "rt", "time", "process", "io-util", "macros"] }
+tracing.workspace = true
+url.workspace = true
+
+[features]
+# Test-only: `UrlGuard::with_test_fixture` lets one `*.test` name reach an in-process loopback
+# fixture server (ADR-011). Enabled only as a dev-dependency feature; the shipped binary never
+# enables it (CI checks the release dependency graph).
+test-support = []
+
+[dev-dependencies]
+chrono.workspace = true
+tokio = { workspace = true, features = ["macros", "rt"] }

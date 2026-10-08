@@ -1,0 +1,30 @@
+---
+source: tests/integration/web_open.rs
+expression: "serde_json::to_string_pretty(&redact(&result, &harness)).unwrap()"
+---
+{
+  "block": {
+    "documentId": "doc_000001",
+    "finalUrl": "http://fixture.test:<port>/injection/direct",
+    "findingIds": [
+      "PI001"
+    ],
+    "maxSeverity": "CRITICAL",
+    "reason": "PROMPT_INJECTION",
+    "url": "http://fixture.test:<port>/injection/direct"
+  },
+  "documentId": "doc_000001",
+  "finalUrl": "http://fixture.test:<port>/injection/direct",
+  "runId": "open_<id>",
+  "security": {
+    "decision": "BLOCK",
+    "findingIds": [
+      "PI001"
+    ],
+    "maxSeverity": "CRITICAL",
+    "policyVersion": "<policyVersion>",
+    "scannerVersion": "injection-scanner 0.1.0-stub"
+  },
+  "status": "BLOCK",
+  "url": "http://fixture.test:<port>/injection/direct"
+}
